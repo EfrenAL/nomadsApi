@@ -16,8 +16,33 @@ app.get('/', function(req, res){
     res.send('Hello biatch');
 });
 
-app.get('/user', middleware.requireAuthentication, function(req, res){
-    
+app.get('/users', function(req, res){
+    var query = req.query;
+    var where = {};
+
+    db.user.findAll({where: where}).then(function(users){
+        res.send(users)
+    }, function(){
+        res.status(500).send();
+    })
+
+
+});
+
+
+app.get('/user/:id', function(req, res){
+    var userId = parseInt(req.params.id, 10);
+
+    db.user.findByPk(userId).then(function(user){
+        if(!!user){
+            res.json(user.toJSON());
+        } else {
+            res.status(404).send()
+        }
+    }, function(e) {
+        res.status(500).send();
+    })
+
 });
 
 app.post('/user', function(req, res){
@@ -27,9 +52,7 @@ app.post('/user', function(req, res){
     }, function(e){
         res.status(400).json(e)
     });
-
-
-})
+});
 
 
 app.use(express.static(__dirname + '/public'));
